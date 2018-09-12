@@ -21,17 +21,17 @@ def get_script_args():
     Get command line arguments and options.
     """
     description = 'Combine two halves of CAMS GFAS monthly data'
-    opt_parser = argparse.ArgumentParser(description=description)
-    opt_parser.add_argument('first_half', metavar='first_half', nargs=1, type=str,
+    arg_parser = argparse.ArgumentParser(description=description)
+    arg_parser.add_argument('first_half', metavar='first_half', nargs=1, type=str,
                             help='First half of monthly data')
-    opt_parser.add_argument('second_half', metavar='second_half', nargs=1, type=str,
+    arg_parser.add_argument('second_half', metavar='second_half', nargs=1, type=str,
                             help='Second half of monthly data')
-    opt_parser.add_argument('output_file', metavar='output_file', nargs=1, type=str,
+    arg_parser.add_argument('output_file', metavar='output_file', nargs=1, type=str,
                             help='Output NetCDF filename')
-    opt_parser.add_argument('-v', '--variable-spec', metavar='variable_spec',
+    arg_parser.add_argument('-v', '--variable-spec', metavar='variable_spec',
                             default='variable_spec.json', nargs=1, type=str,
                             help='JSON-format variable spec file')
-    return opt_parser.parse_args()
+    return arg_parser.parse_args()
 
 
 def read_variable_spec(variable_spec_filename):
