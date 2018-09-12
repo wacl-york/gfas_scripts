@@ -1,0 +1,12 @@
+name: get_gfas
+channels:
+      - defaults
+      - conda-forge
+dependencies:
+      - python=3.6
+      - cython
+      - numpy
+      - netcdf4
+      - pip
+      - pip:
+          - ecmwf-api-client

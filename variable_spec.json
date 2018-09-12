@@ -1,0 +1,234 @@
+{
+  "variables" : [
+    {
+     "code" : "cfire",
+     "name" : "Wildfire overall flux of burnt Carbon",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "crfire",
+     "name" : "Wildfire combustion rate",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "co2fire",
+     "name" : "Wildfire flux of Carbon Dioxide",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "cofire",
+     "name" : "Wildfire flux of Carbon Monoxide",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "ch4fire",
+     "name" : "Wildfire flux of Methane",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "nmhcfire",
+     "name" : "Wildfire flux of Non-Methane Hydro-Carbons",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "h2fire",
+     "name" : "Wildfire flux of Hydrogen",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "noxfire",
+     "name" : "Wildfire flux of Nitrogen Oxides NOx",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "n2ofire",
+     "name" : "Wildfire flux of Nitrous Oxide",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "pm2p5fire",
+     "name" : "Wildfire flux of Particulate Matter PM2.5",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "tpmfire",
+     "name" : "Wildfire flux of Total Particulate Matter",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "tcfire",
+     "name" : "Wildfire flux of Total Carbon in Aerosols",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "ocfire",
+     "name" : "Wildfire flux of Organic Carbon",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "bcfire",
+     "name" : "Wildfire flux of Black Carbon",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "so2fire",
+     "name" : "Wildfire flux of Sulfur Dioxide",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "ch3ohfire",
+     "name" : "Wildfire flux of Methanol (CH3OH)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c2h5ohfire",
+     "name" : "Wildfire flux of Ethanol (C2H5OH)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c3h8fire",
+     "name" : "Wildfire flux of Propane (C3H8)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c2h4fire",
+     "name" : "Wildfire flux of Ethene (C2H4)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c3h6fire",
+     "name" : "Wildfire flux of Propene (C3H6)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c5h8fire",
+     "name" : "Wildfire flux of Isoprene (C5H8)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "terpenesfire",
+     "name" : "Wildfire flux of Terpenes (C5H8)n",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "toluenefire",
+     "name" : "Wildfire flux of Lumped Toluene (C7H8 + C6H6 + C8H10)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "hialkenesfire",
+     "name" : "Wildfire flux of Higher Alkenes (CnH2n C>=4)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "hialkanesfire",
+     "name" : "Wildfire flux of Higher Alkanes (CnH2n+2 C>=4)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "ch2ofire",
+     "name" : "Wildfire flux of Formaldehyde (CH2O)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c2h4ofire",
+     "name" : "Wildfire flux of Acetaldehyde (C2H4O)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c3h6ofire",
+     "name" : "Wildfire flux of Acetone (C3H6O)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "nh3fire",
+     "name" : "Wildfire flux of Ammonia (NH3)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c2h6sfire",
+     "name" : "Wildfire flux of Dimethyl Sulfide (DMS) (C2H6S)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c2h6fire",
+     "name" : "Wildfire flux of Ethane (C2H6)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c7h8fire",
+     "name" : "Wildfire flux of Toluene (C7H8)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c6h6fire",
+     "name" : "Wildfire flux of Benzene (C6H6)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c8h10fire",
+     "name" : "Wildfire flux of Xylene (C8H10)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c4h8fire",
+     "name" : "Wildfire flux of Butenes (C4H8)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c5h10fire",
+     "name" : "Wildfire flux of Pentenes (C5H10)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c6h12fire",
+     "name" : "Wildfire flux of Hexene (C6H12)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c8h16fire",
+     "name" : "Wildfire flux of Octene (C8H16)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c4h10fire",
+     "name" : "Wildfire flux of Butanes (C4H10)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c5h12fire",
+     "name" : "Wildfire flux of Pentanes (C5H12)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c6h14fire",
+     "name" : "Wildfire flux of Hexanes (C6H14)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "c7h16fire",
+     "name" : "Wildfire flux of Heptane (C7H16)",
+     "unit" : "kg/m2/s"
+    },
+    {
+     "code" : "offire",
+     "name" : "Wildfire fraction of area observed",
+     "unit" : "dimensionless"
+    },
+    {
+     "code" : "frpfire",
+     "name" : "Wildfire radiatiave power",
+     "unit" : "W/m2"
+    },
+    {
+     "code" : "mami",
+     "name" : "Mean altitude of maximum injection",
+     "unit" : "m"
+    },
+    {
+     "code" : "apt",
+     "name" : "Altitude of plume top",
+     "unit" : "m"
+    }
+  ]
+}
