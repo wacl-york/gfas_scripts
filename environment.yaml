@@ -1,4 +1,4 @@
-name: get_gfas
+name: gfas_scripts
 channels:
       - defaults
       - conda-forge
