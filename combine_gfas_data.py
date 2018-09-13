@@ -97,6 +97,11 @@ def process_variable(output_dataset, input_dataset_1, input_dataset_2,
     """
     sys.stderr.write(f"INFO: Processing {metadata['code']}\n")
 
+    if metadata['code'] not in input_dataset_1.variables:
+        sys.stderr.write((f"WARNING: Variable {metadata['code']} specified in variable"
+                          "spec, but not found in input datasets."))
+        return None
+
     miss_value = np.float32(-1.E-31)
 
     output_variable = output_dataset.createVariable(metadata['code'], np.float32,
