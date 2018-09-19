@@ -107,6 +107,7 @@ def process_variable(output_dataset, input_dataset_1, input_dataset_2,
     output_variable = output_dataset.createVariable(metadata['code'], np.float32,
                                                     ('time', 'lat', 'lon'),
                                                     fill_value=miss_value,
+                                                    chunksizes=(360, 181, 1),
                                                     zlib=True)
     output_variable.units = metadata['unit']
     output_variable.long_name = metadata['name']
@@ -196,6 +197,8 @@ def main():
     for metadata in variable_spec['variables']:
         process_variable(output_dataset, input_dataset_1, input_dataset_2,
                          metadata)
+
+    process_emission_heights(output_dataset)
 
     input_dataset_1.close()
     input_dataset_2.close()
