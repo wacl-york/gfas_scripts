@@ -50,7 +50,8 @@ def process_time_dimension(output_dataset, input_dataset_1, input_dataset_2):
     """
     Preprocess input_dataset time dimension, storing result in output_dataset.
     """
-    output_time = output_dataset.createVariable('time', np.int32, ('time',), zlib=True)
+    output_time = output_dataset.createVariable('time', np.int32, ('time',), zlib=True,
+                                                chunksizes=(1,))
     output_time.units = 'hours since 1970-01-01 00:00:0.0'
     output_time.long_name = 'time'
     output_time.calendar = 'gregorian'
@@ -66,7 +67,7 @@ def process_lat_dimension(output_dataset, input_dataset):
     output_dataset.
     """
     output_latitude = output_dataset.createVariable('lat', np.float32, ('lat',),
-                                                    zlib=True)
+                                                    zlib=True, chunksizes=(1800,))
     output_latitude.units = 'degrees_north'
     output_latitude.long_name = 'latitude'
     output_latitude[:] = np.ndarray.tolist(input_dataset.variables['latitude'][::-1])
@@ -77,7 +78,7 @@ def process_lon_dimension(output_dataset, input_dataset):
     output_dataset.
     """
     output_longitude = output_dataset.createVariable('lon', np.float32, ('lon',),
-                                                     zlib=True)
+                                                     zlib=True, chunksizes=(1800,))
     output_longitude.units = 'degrees_east'
     output_longitude.long_name = 'longitude'
     output_longitude[:] = np.ndarray.tolist(input_dataset.variables['longitude'][:])
@@ -107,7 +108,7 @@ def process_variable(output_dataset, input_dataset_1, input_dataset_2,
     output_variable = output_dataset.createVariable(metadata['code'], np.float32,
                                                     ('time', 'lat', 'lon'),
                                                     fill_value=miss_value,
-                                                    chunksizes=(1, 360, 181),
+                                                    chunksizes=(1, 1800, 3600),
                                                     zlib=True)
     output_variable.units = metadata['unit']
     output_variable.long_name = metadata['name']
