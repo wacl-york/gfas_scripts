@@ -95,12 +95,12 @@ def process_variable(output_dataset, input_dataset_1, input_dataset_2,
     """
     General-purpose function for preprocessing input_dataset variables.
     """
-    sys.stderr.write(f"INFO: Processing {metadata['code']}\n")
-
     if metadata['code'] not in input_dataset_1.variables:
         sys.stderr.write((f"WARNING: Variable {metadata['code']} specified in variable"
-                          "spec, but not found in input datasets."))
+                          "spec, but not found in input datasets.\n"))
         return None
+    sys.stderr.write(f"INFO: Processing {metadata['code']}...")
+
 
     miss_value = np.float32(-1.E-31)
 
@@ -124,11 +124,13 @@ def process_variable(output_dataset, input_dataset_1, input_dataset_2,
         input_data_2[input_data_2 == simple_mode(input_data_2)] = 0.0
 
     output_variable[:, :, :] = np.concatenate((input_data_1, input_data_2))
+    sys.stderr.write("done\n")
 
 def process_emission_heights(output_dataset):
     """
     Preprocess mean altitude of maximum injection variable.
     """
+    sys.stderr.write("INFO: Processing emission heights...")
     miss_value = np.float32(-1.E-31)
 
     heights = output_dataset.variables['mami'][:, :, :]
@@ -141,6 +143,7 @@ def process_emission_heights(output_dataset):
     heights[indices] = 0.0
 
     output_dataset.variables['mami'][:, :, :] = heights
+    sys.stderr.write("done\n")
 
 def main():
     """
