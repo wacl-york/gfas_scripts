@@ -193,7 +193,10 @@ def main():
 
     output_dataset.createDimension('lon', 3600)
     output_dataset.createDimension('lat', 1800)
-    output_dataset.createDimension('time', None)
+
+    time_d_size = (len(input_dataset_1.variables['time'][:]) +
+                   len(input_dataset_2.variables['time'][:]))
+    output_dataset.createDimension('time', time_d_size)
 
     process_dimensions(output_dataset, input_dataset_1, input_dataset_2)
 
