@@ -137,10 +137,11 @@ def process_emission_heights(output_dataset):
     heights = output_dataset.variables['mami'][:, :, :]
     cofire_values = output_dataset.variables['cofire'][:, :, :]
 
-    indices = cofire_values == 0.0
+    indices = (cofire_values == 0.0)
     heights[indices] = miss_value
 
-    indices = (heights != miss_value) & (cofire_values > -1.0) & (heights < 1.0)
+    indices = ((heights != miss_value) & (cofire_values != 0.0) & (heights < 1.0) &
+               (heights > -1.0))
     heights[indices] = 0.0
 
     output_dataset.variables['mami'][:, :, :] = heights
