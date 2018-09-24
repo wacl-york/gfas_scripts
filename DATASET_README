@@ -1,0 +1,132 @@
+README -- describes contents of HEMCO/GFAS/v2018-09 directory
+24 September 2018
+GEOS-Chem Support Team
+geos-chem-support@as.harvard.edu
+
+Overview:
+================================================================================
+
+This directory contains CAMS Global Fire Assimilation System estimated biomass
+burning emissions, including information about injection heights derived from
+fire observations and meteorological information from the operational weather
+forecasts of ECMWF.
+
+FRP observations currently assimilated in this data set are the NASA Terra MODIS
+and Aqua MODIS active fire products - 
+
+              (http://modis-fire.umd.edu/pages/ActiveFire.php)
+
+This data set includes: Fire Radiative Power (FRP), dry matter burnt and biomass
+burning emissions.
+
+Citation:
+--------------------------------------------------------------------------------
+Contains modified Copernicus Atmosphere Monitoring Service Information 2018
+
+Please acknowledge the use of this data set according to the terms of the
+Copernicus CAMS License agreement:
+
+"Where the Licensee makes or contributes to a publication or distribution
+containing adapted or modified CAMS Information, the Licensee shall provide the
+following or any similar notice:"
+
+'Contains modified Copernicus Atmosphere Monitoring Service Information [Year]';
+
+Reference:
+--------------------------------------------------------------------------------
+Francesca Di Giuseppe, Samuel Rémy, Florian Pappenberger, and Fredrik
+Wetterhall: Combining fire radiative power observations with the fire weather
+index improves the estimation of fire emissions, Atmos. Chem. Phys. Discuss.,
+https://doi.org/10.5194/acp-2017-790
+
+Rémy, S., Veira, A., Paugam, R., Sofiev, M., Kaiser, J. W., Marenco, F., Burton,
+S. P., Benedetti, A., Engelen, R. J., Ferrare, R., and Hair, J. W.: Two global
+data sets of daily fire emission injection heights since 2003, Atmos. Chem.
+Phys., 17, 2921-2942, https://doi.org/10.5194/acp-17-2921-2017, 2017
+
+N. Andela (VUA), J.W. Kaiser (ECMWF, KCL), A. Heil (FZ Jülich), T.T. van Leeuwen
+(VUA), G.R. van der Werf (VUA), M.J. Wooster (KCL), S. Remy (ECMWF) and
+M.G. Schultz (FZ Jülich), Assessment of the Global Fire Assimilation System
+(GFASv1)
+
+Kaiser, J. W., Heil, A., Andreae, M. O., Benedetti, A., Chubarova, N., Jones,
+L., Morcrette, J.-J., Razinger, M., Schultz, M. G., Suttie, M., and van der
+Werf, G. R. (2012). Biomass burning emissions estimated with a global fire
+assimilation system based on observed fire radiative power. BG, 9:527-554
+
+Xu et al. (2010) New GOES imager algorithms for cloud and active fire detection
+and fire radiative power assessment across North, South and Central America.
+RSE Vol. 114
+
+Heil et al. (2010) Assessment of the Real-Time Fire Emissions (GFASv0) by MACC,
+ECMWF Tech. Memo No. 628
+
+Di Giuseppe, F, Remy, S, Pappenberger, F, Wetterhall, F (2016): Improving GFAS
+and CAMS biomass burning estimations by means of the Global ECMWF Fire Forecast
+system (GEFF), ECMWF Tech. Memo No. 790
+
+Files:
+================================================================================
+
+YYYY/GFAS_YYYYMM.nc
+
+ -- Gridded plume rise model parameters, GFAS analysis surface parameters,
+    gridded satellite parameters
+
+    Resolution  : 0.1 x 0.1
+    Units       : m (plume rise model parameters), kg/m^2/s (GFAS analysis
+                  surface parameters), unitless (wildfire fraction of area
+                  observed), W/m^2 (wildfire radiative power)
+    Timestamps  : Monthly, 2003/01 through present month
+    Compression : Level 4 (i.e. nccopy -d4)
+
+    Exhaustive data set information can be found on the CAMS GFAS page in the
+    ECMWF wiki:
+
+                          https://confluence.ecmwf.int/
+
+How the NetCDF files were created:
+================================================================================
+
+The data set files were created as follows.
+
+1) Retrieve NetCDF format data in half month chunks from ECMWF.
+
+2) Create new NetCDF format data file to contain entire month's worth of data,
+   setting 'title', 'conventions', and 'history' attributes as per COARDS.
+
+3) Create output dimensions, converting 'time' from 
+
+                      hours since 1900-01-01 00:00:0.0
+
+   to
+
+                      hours since 1970-01-01 00:00:0.0
+
+   and reversing the sequence of latitude values.
+
+4) For each data set variable:
+       - set 'units', 'long_name', 'missing_value'
+       - set the modal value in each input half-monthly variable to zero
+         (if it is an emission variable), or the output missing value
+         otherwise. There does not appear to be a consistent missing value
+         in the output from the ECMWF data API for this data set in NetCDF
+         format; as this is sparse data, the modal value will be missing data
+       - concatenate input half-monthly data, reversing the latitude dimension
+
+4) For the mean altitude of maximum injection variable:
+       - where there is no CO emission, i.e. no fire, set mean altitude of
+         maximum injection value to the output missing value
+       - where is CO emission, i.e. fire, and the mean altitude of maximum
+         injection value is between -1.0 and 1.0 (exclusive), set mean
+         altitude of maximum injection value to 0.0 (i.e. surface)
+       - the above two steps were taken to further clean up inconsistencies in
+         missing value in the output from the ECMWF data API for this data set
+         in NetCDF format
+
+All variables were compressed at NetCDF 'level 4' when created. Variables were
+chunked with the following sizes:
+
+          time/1, lat/1800, lon/3600
+
+as suggested by the GEOS-Chem wiki.
