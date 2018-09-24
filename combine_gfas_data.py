@@ -3,6 +3,7 @@
 Combine halved monthly CAMS Global Fire Assimilation System data.
 """
 import argparse
+import datetime
 from json import load
 import sys
 
@@ -192,6 +193,15 @@ def main():
         sys.stderr.write(error_message)
         sys.stderr.write(f'{exception.strerror}\n')
         exit(1)
+    
+    
+    date = datetime.fromdatetime((input_dataset_1.variables['time'][5] - 613608) * 3600)
+    year = date.year
+    month = date.month
+
+    output_dataset.setncattr('title', f'CAMS GFAS Inventory - {year}/{month}')
+    output_dataset.setncattr('conventions', 'COARDS')
+    output_dataset.setncattr('history', f'Created at {str(datetime.datetime.utcnow())} by WACL, University of York')
 
     output_dataset.createDimension('lon', 3600)
     output_dataset.createDimension('lat', 1800)
