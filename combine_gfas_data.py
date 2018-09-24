@@ -195,7 +195,7 @@ def main():
         exit(1)
     
     
-    date = datetime.fromdatetime((input_dataset_1.variables['time'][5] - 613608) * 3600)
+    date = datetime.fromtimestamp((input_dataset_1.variables['time'][5] - 613608) * 3600)
     year = date.year
     month = date.month
 
