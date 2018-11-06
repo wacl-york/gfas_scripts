@@ -44,7 +44,7 @@ def get_sftp_client(key):
     """
     Create SFTP client, connect, and return transport object.
     """
-    host = 'earth0.york.ac.uk'
+    host = 'webfiles.york.ac.uk'
     port = 22
 
     transport = pm.Transport((host, port))
