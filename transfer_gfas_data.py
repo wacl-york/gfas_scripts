@@ -49,7 +49,7 @@ def get_sftp_client(key):
 
     transport = pm.Transport((host, port))
     try:
-        transport.connect(username='chem630', pkey=key)
+        transport.connect(username='chem631', pkey=key)
     except pm.SSHException:
         sys.stderr.write(f'ERROR: UNABLE TO ESTABLISH SSH CONNECTION!\n')
         exit(1)
