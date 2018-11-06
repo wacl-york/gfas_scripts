@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-"""
+"""=============================================================================
 Acquire CAMS Global Fire Assimilation data for passed year, month combination,
 storing in passed directory.
-"""
+--------------------------------------------------------------------------------
+============================================================================="""
 import argparse
 from calendar import monthrange
 from copy import deepcopy
