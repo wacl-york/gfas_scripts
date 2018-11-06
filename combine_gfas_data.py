@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-"""
+"""=============================================================================
 Combine halved monthly CAMS Global Fire Assimilation System data.
-"""
+--------------------------------------------------------------------------------
+============================================================================="""
 import argparse
 import datetime
 from json import load
