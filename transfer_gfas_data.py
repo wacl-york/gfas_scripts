@@ -4,8 +4,10 @@ TRANSFER GFAS DATA
 --------------------------------------------------------------------------------
 ============================================================================="""
 import argparse
+from email.message import EmailMessage
 import os
 import os.path
+import smtplib
 import sys
 
 import paramiko as pm
@@ -62,9 +64,30 @@ def push_data_file(client, filename):
     Push preprocessed GFAS data file to webfiles.
     """
     remote_dir = '/var/www/webfiles.york.ac.uk/WACL/GFAS/INCOMING'
-    remote_filename = os.path.join(remote_dir, filename)
+    remote_filename = os.path.join(remote_dir, os.path.basename(filename))
     attributes = client.put(filename, remote_filename)
     return attributes
+
+def send_notification_email(url):
+    """
+    Send notification email to GCST with URL of data file.
+    """
+    msg = EmailMessage()
+    msg.set_content(("Hi GCST,\n\n"
+                     "This is an automated message to let you know that last"
+                     " month's GFAS data is ready to be downloaded.\n\n"
+                     "You can find the data at:\n\n"
+                     f"{url}\n\n"
+                     "If there are any problems with this data, please let me"
+                     " know.\n\n"
+                     "Killian"))
+    msg['Subject'] = '[GFAS - new data available]'
+    msg['From'] = 'klcm500@york.ac.uk'
+    msg['To'] = 'killian.murphy@york.ac.uk'
+
+    smtp = smtplib.SMTP('localhost')
+    smtp.send_message(msg)
+    smtp.quit()
 
 def main():
     """
@@ -76,6 +99,9 @@ def main():
     sftp_client = get_sftp_client(client_key)
     push_data_file(sftp_client, script_args.data_file[0])
     sftp_client.close()
+    url_prefix = 'https://webfiles.york.ac.uk/WACL/GFAS/INCOMING/'
+    url_suffix = os.path.basename(script_args.data_file[0])
+    send_notification_email(f'{url_prefix}{url_suffix}')
 #===============================================================================
 if __name__ == '__main__':
     main()
