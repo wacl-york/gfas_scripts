@@ -80,7 +80,7 @@ def process_lon_dimension(output_dataset, input_dataset):
     output_dataset.
     """
     output_longitude = output_dataset.createVariable('lon', np.float32, ('lon',),
-                                                     zlib=True, chunksizes=(1800,))
+                                                     zlib=True, chunksizes=(3600,))
     output_longitude.units = 'degrees_east'
     output_longitude.long_name = 'longitude'
     output_longitude[:] = np.ndarray.tolist(input_dataset.variables['longitude'][:])
