@@ -73,7 +73,7 @@ def get_script_args():
     description = 'Download two halves of CAMS GFAS monthly data'
     arg_parser = argparse.ArgumentParser(description=description)
     arg_parser.add_argument('year', metavar='year', nargs=1, type=int,
-                            choices=range(2003, 2019),
+                            choices=range(2003, 2025),
                             help='Year in which monthly data occurs')
     arg_parser.add_argument('month', metavar='month', nargs=1, type=int,
                             choices=range(1, 13),
