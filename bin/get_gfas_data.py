@@ -62,9 +62,9 @@ def retrieve_gfas_data(server, year, month, destination):
             server.retrieve(request)
         except APIException as api_exception:
             error_message = ('WARNING: CAUGHT ECMWF API EXCEPTION ON '
-                             f'REQUEST WITH PARAMETERS {request}')
+                             f'REQUEST WITH PARAMETERS {request}\n')
             sys.stderr.write(error_message)
-            sys.stderr.write(f'WARNING: EXCEPTION MESSAGE IS {api_exception}')
+            sys.stderr.write(f'WARNING: EXCEPTION MESSAGE IS {api_exception}\n')
 
 def get_script_args():
     """
