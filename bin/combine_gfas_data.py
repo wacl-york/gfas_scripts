@@ -44,8 +44,8 @@ def read_variable_spec(variable_spec_filename):
         with open(variable_spec_filename) as variable_spec:
             return load(variable_spec)
     except OSError as exception:
-        sys.stderr.write('ERROR: CAUGHT EXCEPTION WHEN READING VARIABLE SPEC')
-        sys.stderr.write(f'{exception}')
+        sys.stderr.write('ERROR: CAUGHT EXCEPTION WHEN READING VARIABLE SPEC\n')
+        sys.stderr.write(f'{exception}\n')
         exit(1)
 
 def process_time_dimension(output_dataset, input_dataset_1, input_dataset_2):
@@ -102,7 +102,7 @@ def process_variable(output_dataset, input_dataset_1, input_dataset_2,
         sys.stderr.write((f"WARNING: Variable {metadata['code']} specified in variable"
                           "spec, but not found in input datasets.\n"))
         return None
-    sys.stderr.write(f"INFO: Processing {metadata['code']}...")
+    sys.stderr.write(f"INFO: Processing {metadata['code']}...\n")
 
 
     miss_value = np.float32(-1.E-31)
@@ -133,7 +133,7 @@ def process_emission_heights(output_dataset):
     """
     Preprocess mean altitude of maximum injection variable.
     """
-    sys.stderr.write("INFO: Processing emission heights...")
+    sys.stderr.write("INFO: Processing emission heights...\n")
     miss_value = np.float32(-1.E-31)
 
     heights = output_dataset.variables['mami'][:, :, :]
