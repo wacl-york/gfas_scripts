@@ -217,7 +217,7 @@
     },
     {
      "code" : "frpfire",
-     "name" : "Wildfire radiatiave power",
+     "name" : "Wildfire radiative power",
      "unit" : "W/m2"
     },
     {
@@ -228,6 +228,16 @@
     {
      "code" : "apt",
      "name" : "Altitude of plume top",
+     "unit" : "m"
+    },
+    {
+     "code" : "apb",
+     "name" : "Altitude of plume bottom",
+     "unit" : "m"
+    },
+    {
+     "code" : "injh",
+     "name" : "Injection height (from IS4FIRES)",
      "unit" : "m"
     }
   ]
