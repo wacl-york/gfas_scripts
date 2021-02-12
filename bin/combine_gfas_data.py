@@ -165,7 +165,7 @@ def process_variable(
     input_data_1 = input_dataset_1.variables[metadata["code"]][:, ::-1, :]
     input_data_2 = input_dataset_2.variables[metadata["code"]][:, ::-1, :]
 
-    if metadata["code"] in ["mami", "injh"]:
+    if metadata["code"] in ["mami", "injh", "apb", "apt"]:
         input_data_1[input_data_1 == simple_mode(input_data_1)] = miss_value
         input_data_2[input_data_2 == simple_mode(input_data_2)] = miss_value
     else:
@@ -178,12 +178,12 @@ def process_variable(
 
 def process_emission_heights(output_dataset):
     """
-    Preprocess mean altitude of maximum injection variable.
+    Additionally preprocess injection height variables.
     """
     sys.stderr.write("INFO: Processing emission heights...\n")
     miss_value = np.float32(-1.0e-31)
 
-    for height_field in ["mami", "injh"]:
+    for height_field in ["mami", "injh", "apb", "apt"]:
         heights = output_dataset.variables[height_field][:, :, :]
         cofire_values = output_dataset.variables["cofire"][:, :, :]
 
