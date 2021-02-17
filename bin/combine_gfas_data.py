@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """=============================================================================
 Combine halved monthly CAMS Global Fire Assimilation System data.
 --------------------------------------------------------------------------------
