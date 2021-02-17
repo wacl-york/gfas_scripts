@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """=============================================================================
 Acquire CAMS Global Fire Assimilation data for passed year, month combination,
 storing in passed directory.

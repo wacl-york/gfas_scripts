@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """=============================================================================
 TRANSFER GFAS DATA
 --------------------------------------------------------------------------------
@@ -17,15 +17,45 @@ def get_script_args():
     """
     Get command line arguments and options.
     """
-    description = "Upload preprocessed GFAS file to webfiles for Harvard."
+    description = "Upload preprocessed GFAS file to SFTP server"
     arg_parser = argparse.ArgumentParser(description=description)
     arg_parser.add_argument(
         "data_file",
         metavar="data_file",
-        nargs=1,
         type=str,
-        help="File to upload to webfiles",
+        help="File to upload to SFTP server",
     )
+
+    arg_parser.add_argument(
+        "sftp_server",
+        metavar="hostname",
+        type=str,
+        help=(
+            "Hostname of the SFTP server to which GFAS data file will "
+            "be uploaded"
+        ),
+    )
+
+    arg_parser.add_argument(
+        "sftp_directory",
+        metavar="directory_path",
+        type=str,
+        help=(
+            "Directory on the SFTP server into which the GFAS data should be "
+            "placed"
+        ),
+    )
+
+    arg_parser.add_argument(
+        "--identity-file",
+        metavar="file_path",
+        type=str,
+        help=(
+            "Path to SSH identity file that will be used to set up "
+            "connection to SFTP server"
+        ),
+    )
+
     return arg_parser.parse_args()
 
 
@@ -37,44 +67,42 @@ def check_input_file(filename):
         raise IOError(f"ERROR: COULD NOT OPEN INPUT FILE {filename}!\n")
 
 
-def import_key():
+def import_key(key_path="~/.ssh/id_rsa"):
     """
     Import RSA key for authentication to webfiles.
     """
     try:
-        key_path = os.path.expanduser("~/.ssh/id_rsa")
         key = pm.RSAKey.from_private_key_file(key_path)
     except IOError:
         sys.stderr.write(f"ERROR: COULD NOT OPEN KEY FILE {key_path}!\n")
-        exit(1)
+        sys.exit(1)
 
     return key
 
 
-def get_sftp_client(key):
+def get_sftp_client(hostname, key):
     """
     Create SFTP client, connect, and return transport object.
     """
-    host = "webfiles.york.ac.uk"
+    host = hostname
     port = 22
 
     transport = pm.Transport((host, port))
     try:
         transport.connect(username="chem631", pkey=key)
     except pm.SSHException:
-        sys.stderr.write(f"ERROR: UNABLE TO ESTABLISH SSH CONNECTION!\n")
-        exit(1)
+        sys.stderr.write("ERROR: UNABLE TO ESTABLISH SSH CONNECTION!\n")
+        sys.exit(1)
 
-    sftp_client = pm.SFTPClient.from_transport(transport)
-    return sftp_client
+    client = pm.SFTPClient.from_transport(transport)
+    return client
 
 
-def push_data_file(client, filename):
+def push_data_file(client, directory, filename):
     """
     Push preprocessed GFAS data file to webfiles.
     """
-    remote_dir = "/var/www/webfiles.york.ac.uk/WACL/GFAS/INCOMING"
-    remote_filename = os.path.join(remote_dir, os.path.basename(filename))
+    remote_filename = os.path.join(directory, os.path.basename(filename))
     attributes = client.put(filename, remote_filename)
     return attributes
 
@@ -105,21 +133,25 @@ def send_notification_email(url):
     smtp.quit()
 
 
-def main():
-    """
-    Main entry point for this script.
-    """
-    script_args = get_script_args()
-    check_input_file(script_args.data_file[0])
-    client_key = import_key()
-    sftp_client = get_sftp_client(client_key)
-    push_data_file(sftp_client, script_args.data_file[0])
-    sftp_client.close()
-    url_prefix = "https://webfiles.york.ac.uk/WACL/GFAS/INCOMING/"
-    url_suffix = os.path.basename(script_args.data_file[0])
-    send_notification_email(f"{url_prefix}{url_suffix}")
-
-
 # ===============================================================================
 if __name__ == "__main__":
-    main()
+    script_args = get_script_args()
+
+    check_input_file(script_args.data_file)
+    if script_args.identity_file is not None:
+        check_input_file(script_args.identity_file)
+
+    if script_args.identity_file is not None:
+        client_key = import_key(script_args.identity_file)
+    else:
+        client_key = import_key()
+
+    sftp_client = get_sftp_client(script_args.sftp_server, client_key)
+    push_data_file(
+        sftp_client, script_args.sftp_directory, script_args.data_file,
+    )
+    sftp_client.close()
+
+    URL_PREFIX = "https://webfiles.york.ac.uk/WACL/GFAS/INCOMING/"
+    url_suffix = os.path.basename(script_args.data_file)
+    send_notification_email(f"{URL_PREFIX}{url_suffix}")
