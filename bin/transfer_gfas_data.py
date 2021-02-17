@@ -126,8 +126,7 @@ def send_notification_email(url):
     )
     msg["Subject"] = "[GFAS - new data available]"
     msg["From"] = "klcm500@york.ac.uk"
-    #  msg["To"] = "geos-chem-support@g.harvard.edu, killian.murphy@york.ac.uk"
-    msg["To"] = "killian.murphy@york.ac.uk"
+    msg["To"] = "geos-chem-support@g.harvard.edu, killian.murphy@york.ac.uk"
 
     smtp = smtplib.SMTP("localhost")
     smtp.send_message(msg)
