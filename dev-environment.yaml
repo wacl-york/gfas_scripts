@@ -1,11 +1,15 @@
-name: gfas_scripts
+name: gfas_scripts_dev
 channels:
       - defaults
       - conda-forge
 dependencies:
       - python=3.10
+      - black
       - cdsapi
+      - ipython
+      - mypy
       - netcdf4
       - numpy
       - paramiko
       - pip
+      - pylint
