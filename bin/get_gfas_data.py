@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """=============================================================================
+Download GFAS biomass burning data for a single month.
 
+Download a month's worth of GFAS biomass burning data from ECMWF CDS. All data
+fields are downloaded into a single NetCDF file named GFAS_RAW_YYYY_MM.nc. This
+script is intended to be the first part of a Download => Preprocess => Transfer
+pipeline from ECMWF CDS to GCST.
 ============================================================================="""
 import argparse
 import calendar
@@ -11,32 +16,65 @@ import os
 import cdsapi
 
 
-def date_string(date_string: str) -> datetime.date:
-    """ """
+def date_string(string: str) -> datetime.date:
+    """
+    Verify that a date string is in the correct format for selecting a year &
+    month: YYYY-MM. Used by argparse to validate a command line argument.
+
+    Args:
+        string: A string containing a year and month, in the format YYYY-MM.
+    Returns:
+        A datetime.date object, representative of the passed year & month.
+
+    Raises:
+        argparse.ArgumentTypeError: The passed string couldn't be converted to a
+                                    datetime.date, likely due to it being
+                                    incorrectly formatted
+    """
     try:
-        return datetime.datetime.strptime(date_string, "%Y-%m").date()
-    except ValueError as exception:
-        error_message = (
-            f"The passed date {date_string} is not valid - expected format is "
+        return datetime.datetime.strptime(string, "%Y-%m").date()
+    except ValueError as _exc:
+        _error_message = (
+            f"The passed date {string} is not valid - expected format is "
             "YYYY-MM"
         )
-        raise argparse.ArgumentTypeError(error_message) from exception
+        raise argparse.ArgumentTypeError(_error_message) from _exc
 
 
 def directory_path(path_string: str) -> str:
-    """ """
+    """
+    Verify that a path string points to a valid and accessible directory Used
+    by argparse to validate a command line argument.
+
+    Args:
+        path_string: A string containing the path of a possible directory.
+
+    Returns:
+        The same string that was passed to the function, if it can be verified
+        as an existing and accessible directory.
+
+    Raises:
+        argparse.ArgumentTypeError: The passed string doesn't point to a valid
+                                    and accessible directory.
+    """
     if os.path.isdir(path_string):
         return path_string
-    else:
-        error_message = (
-            f"The passed output directory path {path_string} is not a path to an "
-            "existing directory"
-        )
-        raise argparse.ArgumentTypeError(error_message)
+
+    _error_message = (
+        f"The passed output directory path {path_string} is not a path to "
+        "an existing or accessible directory"
+    )
+    raise argparse.ArgumentTypeError(_error_message)
 
 
 def parse_command_line() -> argparse.Namespace:
-    """ """
+    """
+    Parse command line arguments and options
+
+    Returns:
+        argparse.Namespace containing command line arguments and options, on
+        successful parsing.
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -134,6 +172,8 @@ if __name__ == "__main__":
                 f"GFAS_RAW_{START_DATE.year}_{START_DATE.month}.nc",
             ),
         )
-    except Exception as exception:
-        error_message = "There was a problem retrieving data from the CDS API"
-        raise RuntimeError(error_message) from exception
+    except Exception as exc:
+        error_message: str = (
+            "There was a problem retrieving data from the CDS API"
+        )
+        raise RuntimeError(error_message) from exc
