@@ -33,12 +33,12 @@ def date_string(string: str) -> datetime.date:
     """
     try:
         return datetime.datetime.strptime(string, "%Y-%m").date()
-    except ValueError as _exc:
+    except ValueError as _exception:
         _error_message = (
             f"The passed date {string} is not valid - expected format is "
             "YYYY-MM"
         )
-        raise argparse.ArgumentTypeError(_error_message) from _exc
+        raise argparse.ArgumentTypeError(_error_message) from _exception
 
 
 def directory_path(path_string: str) -> str:
@@ -66,7 +66,7 @@ def directory_path(path_string: str) -> str:
     )
     raise argparse.ArgumentTypeError(_error_message)
 
-
+# TODO: Add description and example usage
 def parse_command_line() -> argparse.Namespace:
     """
     Parse command line arguments and options
@@ -172,8 +172,8 @@ if __name__ == "__main__":
                 f"GFAS_RAW_{START_DATE.year}_{START_DATE.month}.nc",
             ),
         )
-    except Exception as exc:
+    except Exception as exception:
         error_message: str = (
             "There was a problem retrieving data from the CDS API"
         )
-        raise RuntimeError(error_message) from exc
+        raise RuntimeError(error_message) from exception
