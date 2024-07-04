@@ -20,6 +20,7 @@ def simple_mode(data):
     unique, counts = np.unique(data, return_counts=True)
     return unique[np.argmax(counts)]
 
+
 def file_path(path_string: str) -> str:
     """ """
     if os.path.isfile(path_string):
@@ -30,6 +31,7 @@ def file_path(path_string: str) -> str:
         "existing and accesible file"
     )
     raise argparse.ArgumentTypeError(_error_message)
+
 
 def potential_file_path(path_string: str) -> str:
     """ """
@@ -43,6 +45,7 @@ def potential_file_path(path_string: str) -> str:
         )
         raise argparse.ArgumentTypeError(_error_message)
 
+
 def parse_command_line() -> argparse.Namespace:
     """ """
     parser = argparse.ArgumentParser()
@@ -51,7 +54,7 @@ def parse_command_line() -> argparse.Namespace:
         "raw_data_file",
         type=file_path,
         metavar="/path/to/data/file",
-        help="The raw GFAS data to preprocess"
+        help="The raw GFAS data to preprocess",
     )
 
     parser.add_argument(
@@ -76,6 +79,7 @@ def parse_command_line() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
 def process_time_dimension(output_dataset, input_dataset):
     """
     Preprocess input_dataset time dimension, storing result in output_dataset.
@@ -87,9 +91,7 @@ def process_time_dimension(output_dataset, input_dataset):
     output_time.long_name = "time"
     output_time.calendar = "gregorian"
 
-    time_list = np.ndarray.tolist(
-        input_dataset.variables["time"][:] - 613608
-    )
+    time_list = np.ndarray.tolist(input_dataset.variables["time"][:] - 613608)
 
     output_time[:] = time_list
 
@@ -133,9 +135,7 @@ def process_dimensions(output_dataset, input_dataset):
     process_lon_dimension(output_dataset, input_dataset)
 
 
-def process_variable(
-    output_dataset, input_dataset, metadata
-):
+def process_variable(output_dataset, input_dataset, metadata):
     """
     General-purpose function for preprocessing input_dataset variables.
     """
@@ -264,9 +264,7 @@ def main():
     process_dimensions(output_dataset, input_dataset)
 
     for metadata in variable_spec["variables"]:
-        process_variable(
-            output_dataset, input_dataset, metadata
-        )
+        process_variable(output_dataset, input_dataset, metadata)
 
     process_emission_heights(output_dataset)
 

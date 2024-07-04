@@ -12,6 +12,7 @@ import sys
 
 import paramiko as pm
 
+
 # ===============================================================================
 def get_script_args():
     """
@@ -148,7 +149,9 @@ if __name__ == "__main__":
 
     sftp_client = get_sftp_client(script_args.sftp_server, client_key)
     push_data_file(
-        sftp_client, script_args.sftp_directory, script_args.data_file,
+        sftp_client,
+        script_args.sftp_directory,
+        script_args.data_file,
     )
     sftp_client.close()
 

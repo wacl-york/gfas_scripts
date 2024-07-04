@@ -15,6 +15,7 @@ import os
 
 import cdsapi
 
+
 def date_string(string: str) -> datetime.date:
     """
     Verify that a date string is in the correct format for selecting a year &
@@ -64,6 +65,7 @@ def directory_path(path_string: str) -> str:
         "an existing or accessible directory"
     )
     raise argparse.ArgumentTypeError(_error_message)
+
 
 # TODO: Add description and example usage
 def parse_command_line() -> argparse.Namespace:
@@ -156,7 +158,7 @@ if __name__ == "__main__":
         "wildfire_overall_flux_of_burnt_carbon",
         "wildfire_radiative_power",
     ]
-    
+
     try:
         CDS_CLIENT: cdsapi.Client = cdsapi.Client()
     except Exception as exception:
