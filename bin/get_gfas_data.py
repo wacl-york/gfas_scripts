@@ -1,97 +1,190 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """=============================================================================
-Acquire CAMS Global Fire Assimilation data for passed year, month combination,
-storing in passed directory.
---------------------------------------------------------------------------------
+Download GFAS biomass burning data for a single month.
+
+Download a month's worth of GFAS biomass burning data from ECMWF CDS. All data
+fields are downloaded into a single NetCDF file named GFAS_RAW_YYYY_MM.nc. This
+script is intended to be the first part of a Download => Preprocess => Transfer
+pipeline from ECMWF CDS to GCST.
 ============================================================================="""
 import argparse
-from calendar import monthrange
-from copy import deepcopy
-from datetime import date
+import calendar
+import datetime
+import logging
 import os
-import sys
 
-from ecmwfapi import ECMWFDataServer
-from ecmwfapi.api import APIException
+import cdsapi
 
-# PARAMETERS COMMON TO EACH DATA REQUEST
-PARAM = ('80.210/81.210/82.210/83.210/84.210/85.210/86.210/87.210/88.210/89.210/90.210/'
-         '91.210/92.210/97.210/99.210/100.210/102.210/103.210/104.210/105.210/106.210/'
-         '107.210/108.210/109.210/110.210/111.210/112.210/113.210/114.210/115.210/'
-         '116.210/117.210/118.210/119.210/120.210/231.210/232.210/233.210/234.210/'
-         '235.210/236.210/237.210/238.210/239.210/240.210/241.210')
-REQUEST_PARAMS = {
-    "class": "mc",
-    "dataset": "cams_gfas",
-    "expver": "0001",
-    "levtype": "sfc",
-    "param": PARAM,
-    "step": "0-24",
-    "stream": "gfas",
-    "format": "netcdf",
-    "time": "00",
-    "type": "ga",
-}
 
-def month_to_mars_date_strings(year, month):
+def date_string(string: str) -> datetime.date:
     """
-    Generate and return MARS date strings for passed year.
-    """
-    first_half_start_date = date(year, month, 1)
-    first_half_end_date = date(year, month, 15)
-    second_half_start_date = date(year, month, 16)
-    second_half_end_date = date(year, month, monthrange(year, month)[1])
+    Verify that a date string is in the correct format for selecting a year &
+    month: YYYY-MM. Used by argparse to validate a command line argument.
 
-    return (f'{first_half_start_date}/to/{first_half_end_date}',
-            f'{second_half_start_date}/to/{second_half_end_date}')
+    Args:
+        string: A string containing a year and month, in the format YYYY-MM.
+    Returns:
+        A datetime.date object, representative of the passed year & month.
 
-def retrieve_gfas_data(server, year, month, destination):
+    Raises:
+        argparse.ArgumentTypeError: The passed string couldn't be converted to a
+                                    datetime.date, likely due to it being
+                                    incorrectly formatted
     """
-    Retrieve GFAS data for the passed month in year, storing in destination
-    directory.
-    """
-    mars_date_strings = month_to_mars_date_strings(year, month)
+    try:
+        return datetime.datetime.strptime(string, "%Y-%m").date()
+    except ValueError as _exception:
+        _error_message = (
+            f"The passed date {string} is not valid - expected format is "
+            "YYYY-MM"
+        )
+        raise argparse.ArgumentTypeError(_error_message) from _exception
 
-    for index, letter in enumerate(('a', 'b')):
-        request = deepcopy(REQUEST_PARAMS)
-        target_filename = os.path.join(destination,
-                                       f'GFAS_RAW_{year}_{month}_{letter}.nc')
-        request.update({"date": mars_date_strings[index],
-                        "target": target_filename})
-        try:
-            server.retrieve(request)
-        except APIException as api_exception:
-            error_message = ('WARNING: CAUGHT ECMWF API EXCEPTION ON '
-                             f'REQUEST WITH PARAMETERS {request}\n')
-            sys.stderr.write(error_message)
-            sys.stderr.write(f'WARNING: EXCEPTION MESSAGE IS {api_exception}\n')
 
-def get_script_args():
+def directory_path(path_string: str) -> str:
     """
-    Get command line arguments and options.
-    """
-    description = 'Download two halves of CAMS GFAS monthly data'
-    arg_parser = argparse.ArgumentParser(description=description)
-    arg_parser.add_argument('year', metavar='year', nargs=1, type=int,
-                            choices=range(2003, 2025),
-                            help='Year in which monthly data occurs')
-    arg_parser.add_argument('month', metavar='month', nargs=1, type=int,
-                            choices=range(1, 13),
-                            help='Month of data to download, from 1-12')
-    arg_parser.add_argument('-o', '--output-directory', metavar='output_directory',
-                            default='./', nargs=1, type=str,
-                            help='Directory in which to store downloaded data files')
-    return arg_parser.parse_args()
+    Verify that a path string points to a valid and accessible directory Used
+    by argparse to validate a command line argument.
 
-def main():
-    """
-    Read command line arguments and download appropriate GFAS data files.
-    """
-    script_args = get_script_args()
+    Args:
+        path_string: A string containing the path of a possible directory.
 
-    data_server = ECMWFDataServer()
-    retrieve_gfas_data(data_server, script_args.year[0], script_args.month[0],
-                       script_args.output_directory[0])
-#=========================================================================================
-if __name__ == '__main__':
-    main()
+    Returns:
+        The same string that was passed to the function, if it can be verified
+        as an existing and accessible directory.
+
+    Raises:
+        argparse.ArgumentTypeError: The passed string doesn't point to a valid
+                                    and accessible directory.
+    """
+    if os.path.isdir(path_string):
+        return path_string
+
+    _error_message = (
+        f"The passed output directory path {path_string} is not a path to "
+        "an existing or accessible directory"
+    )
+    raise argparse.ArgumentTypeError(_error_message)
+
+
+# TODO: Add description and example usage
+def parse_command_line() -> argparse.Namespace:
+    """
+    Parse command line arguments and options
+
+    Returns:
+        argparse.Namespace containing command line arguments and options, on
+        successful parsing.
+    """
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "month",
+        type=date_string,
+        metavar="month {YYYY-MM}",
+        help="The month of GFAS data to retrieve",
+    )
+
+    parser.add_argument(
+        "-o",
+        "--output-directory",
+        metavar="output_directory_path",
+        default="./",
+        nargs=1,
+        type=directory_path,
+        help="Directory in which to store downloaded data files",
+    )
+
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
+    COMMAND_LINE: argparse.Namespace = parse_command_line()
+
+    START_DATE: datetime.date = COMMAND_LINE.month
+    END_DATE: datetime.date = START_DATE + datetime.timedelta(
+        days=calendar.monthrange(START_DATE.year, START_DATE.month)[1] - 1
+    )
+
+    CDS_DATE_STRING: str = f"{START_DATE}/{END_DATE}"
+    CDS_DATA_FIELDS: list[str] = [
+        "altitude_of_plume_top",
+        "altitude_of_plume_bottom",
+        "injection_height",
+        "mean_altitude_of_maximum_injection",
+        "wildfire_combustion_rate",
+        "wildfire_flux_of_acetaldehyde",
+        "wildfire_flux_of_acetone",
+        "wildfire_flux_of_ammonia",
+        "wildfire_flux_of_benzene",
+        "wildfire_flux_of_black_carbon",
+        "wildfire_flux_of_butanes",
+        "wildfire_flux_of_butenes",
+        "wildfire_flux_of_carbon_dioxide",
+        "wildfire_flux_of_carbon_monoxide",
+        "wildfire_flux_of_dimethyl_sulfide",
+        "wildfire_flux_of_ethane",
+        "wildfire_flux_of_ethanol",
+        "wildfire_flux_of_ethene",
+        "wildfire_flux_of_formaldehyde",
+        "wildfire_flux_of_heptane",
+        "wildfire_flux_of_hexanes",
+        "wildfire_flux_of_hexene",
+        "wildfire_flux_of_higher_alkanes",
+        "wildfire_flux_of_higher_alkenes",
+        "wildfire_flux_of_hydrogen",
+        "wildfire_flux_of_isoprene",
+        "wildfire_flux_of_methane",
+        "wildfire_flux_of_methanol",
+        "wildfire_flux_of_nitrogen_oxides",
+        "wildfire_flux_of_nitrous_oxide",
+        "wildfire_flux_of_non_methane_hydrocarbons",
+        "wildfire_flux_of_octene",
+        "wildfire_flux_of_organic_carbon",
+        "wildfire_flux_of_particulate_matter_d_2_5_µm",
+        "wildfire_flux_of_pentanes",
+        "wildfire_flux_of_pentenes",
+        "wildfire_flux_of_propane",
+        "wildfire_flux_of_propene",
+        "wildfire_flux_of_sulphur_dioxide",
+        "wildfire_flux_of_terpenes",
+        "wildfire_flux_of_toluene",
+        "wildfire_flux_of_toluene_lump",
+        "wildfire_flux_of_total_carbon_in_aerosols",
+        "wildfire_flux_of_total_particulate_matter",
+        "wildfire_flux_of_xylene",
+        "wildfire_fraction_of_area_observed",
+        "wildfire_overall_flux_of_burnt_carbon",
+        "wildfire_radiative_power",
+    ]
+
+    try:
+        CDS_CLIENT: cdsapi.Client = cdsapi.Client()
+    except Exception as exception:
+        error_message: str = (
+            "\n\nThere was a problem setting up a connection to the CDS API - "
+            "check the contents of your CDS API config file, usually found "
+            "at ${HOME}/.cdsapirc\n"
+        )
+
+        raise RuntimeError(error_message) from exception
+
+    try:
+        CDS_CLIENT.retrieve(
+            "cams-global-fire-emissions-gfas",
+            {
+                "date": CDS_DATE_STRING,
+                "format": "netcdf",
+                "variable": CDS_DATA_FIELDS,
+            },
+            os.path.join(
+                COMMAND_LINE.output_directory[0],
+                f"GFAS_RAW_{START_DATE.year}_{str(START_DATE.month).zfill(2)}.nc",
+            ),
+        )
+    except Exception as exception:
+        error_message: str = (
+            "There was a problem retrieving data from the CDS API"
+        )
+        raise RuntimeError(error_message) from exception
