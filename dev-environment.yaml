@@ -11,5 +11,6 @@ dependencies:
       - netcdf4
       - numpy
       - paramiko
-      - pip
+      - pip:
+        - ncompare
       - pylint

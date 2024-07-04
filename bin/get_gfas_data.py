@@ -15,7 +15,6 @@ import os
 
 import cdsapi
 
-
 def date_string(string: str) -> datetime.date:
     """
     Verify that a date string is in the correct format for selecting a year &
@@ -108,8 +107,8 @@ if __name__ == "__main__":
 
     CDS_DATE_STRING: str = f"{START_DATE}/{END_DATE}"
     CDS_DATA_FIELDS: list[str] = [
-        "altitude_of_plume_bottom",
         "altitude_of_plume_top",
+        "altitude_of_plume_bottom",
         "injection_height",
         "mean_altitude_of_maximum_injection",
         "wildfire_combustion_rate",
@@ -157,8 +156,18 @@ if __name__ == "__main__":
         "wildfire_overall_flux_of_burnt_carbon",
         "wildfire_radiative_power",
     ]
+    
+    try:
+        CDS_CLIENT: cdsapi.Client = cdsapi.Client()
+    except Exception as exception:
+        error_message: str = (
+            "\n\nThere was a problem setting up a connection to the CDS API - "
+            "check the contents of your CDS API config file, usually found "
+            "at ${HOME}/.cdsapirc\n"
+        )
 
-    CDS_CLIENT: cdsapi.Client = cdsapi.Client()
+        raise RuntimeError(error_message) from exception
+
     try:
         CDS_CLIENT.retrieve(
             "cams-global-fire-emissions-gfas",
@@ -168,8 +177,8 @@ if __name__ == "__main__":
                 "variable": CDS_DATA_FIELDS,
             },
             os.path.join(
-                COMMAND_LINE.output_directory,
-                f"GFAS_RAW_{START_DATE.year}_{START_DATE.month}.nc",
+                COMMAND_LINE.output_directory[0],
+                f"GFAS_RAW_{START_DATE.year}_{str(START_DATE.month).zfill(2)}.nc",
             ),
         )
     except Exception as exception:

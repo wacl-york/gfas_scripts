@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """=============================================================================
-Combine halved monthly CAMS Global Fire Assimilation System data.
+Combine monthly CAMS Global Fire Assimilation System data.
 --------------------------------------------------------------------------------
 ============================================================================="""
 import argparse
@@ -35,7 +35,7 @@ def potential_file_path(path_string: str) -> str:
     """ """
     try:
         with open(path_string, "w+", encoding="utf-8") as _:
-            pass
+            return path_string
     except OSError as _exc:
         _error_message = (
             f"The passed output file path {path_string} is not a path to a "
@@ -76,20 +76,7 @@ def parse_command_line() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def read_variable_spec(variable_spec_filename):
-    """
-    Read variable codes, names, and units from a variable spec JSON file.
-    """
-    try:
-        with open(variable_spec_filename) as variable_spec:
-            return load(variable_spec)
-    except OSError as exception:
-        sys.stderr.write("ERROR: CAUGHT EXCEPTION WHEN READING VARIABLE SPEC\n")
-        sys.stderr.write(f"{exception}\n")
-        exit(1)
-
-
-def process_time_dimension(output_dataset, input_dataset_1, input_dataset_2):
+def process_time_dimension(output_dataset, input_dataset):
     """
     Preprocess input_dataset time dimension, storing result in output_dataset.
     """
@@ -100,14 +87,11 @@ def process_time_dimension(output_dataset, input_dataset_1, input_dataset_2):
     output_time.long_name = "time"
     output_time.calendar = "gregorian"
 
-    time_list_1 = np.ndarray.tolist(
-        input_dataset_1.variables["time"][:] - 613608
-    )
-    time_list_2 = np.ndarray.tolist(
-        input_dataset_2.variables["time"][:] - 613608
+    time_list = np.ndarray.tolist(
+        input_dataset.variables["time"][:] - 613608
     )
 
-    output_time[:] = time_list_1 + time_list_2
+    output_time[:] = time_list
 
 
 def process_lat_dimension(output_dataset, input_dataset):
@@ -140,26 +124,26 @@ def process_lon_dimension(output_dataset, input_dataset):
     )
 
 
-def process_dimensions(output_dataset, input_dataset_1, input_dataset_2):
+def process_dimensions(output_dataset, input_dataset):
     """
     Preprocess time, latitude, and longitude.
     """
-    process_time_dimension(output_dataset, input_dataset_1, input_dataset_2)
-    process_lat_dimension(output_dataset, input_dataset_1)
-    process_lon_dimension(output_dataset, input_dataset_1)
+    process_time_dimension(output_dataset, input_dataset)
+    process_lat_dimension(output_dataset, input_dataset)
+    process_lon_dimension(output_dataset, input_dataset)
 
 
 def process_variable(
-    output_dataset, input_dataset_1, input_dataset_2, metadata
+    output_dataset, input_dataset, metadata
 ):
     """
     General-purpose function for preprocessing input_dataset variables.
     """
-    if metadata["code"] not in input_dataset_1.variables:
+    if metadata["code"] not in input_dataset.variables:
         sys.stderr.write(
             (
                 f"WARNING: Variable {metadata['code']} specified in variable"
-                "spec, but not found in input datasets.\n"
+                "spec, but not found in input dataset.\n"
             )
         )
         return None
@@ -179,17 +163,14 @@ def process_variable(
     output_variable.long_name = metadata["name"]
     output_variable.missing_value = miss_value
 
-    input_data_1 = input_dataset_1.variables[metadata["code"]][:, ::-1, :]
-    input_data_2 = input_dataset_2.variables[metadata["code"]][:, ::-1, :]
+    input_data = input_dataset.variables[metadata["code"]][:, ::-1, :]
 
     if metadata["code"] in ["mami", "injh", "apb", "apt"]:
-        input_data_1[input_data_1 == simple_mode(input_data_1)] = miss_value
-        input_data_2[input_data_2 == simple_mode(input_data_2)] = miss_value
+        input_data[input_data == simple_mode(input_data)] = miss_value
     else:
-        input_data_1[input_data_1 == simple_mode(input_data_1)] = 0.0
-        input_data_2[input_data_2 == simple_mode(input_data_2)] = 0.0
+        input_data[input_data == simple_mode(input_data)] = 0.0
 
-    output_variable[:, :, :] = np.concatenate((input_data_1, input_data_2))
+    output_variable[:, :, :] = input_data
     sys.stderr.write("done\n")
 
 
@@ -223,7 +204,7 @@ def main():
     """
     Main entry point for this script.
     """
-    script_args = get_script_args()
+    script_args = parse_command_line()
 
     try:
         with open(script_args.variable_spec[0]) as variable_spec_file:
@@ -235,46 +216,34 @@ def main():
         )
         sys.stderr.write(error_message)
         sys.stderr.write(f"{exception.strerror}\n")
-        exit(1)
+        sys.exit(1)
 
     try:
-        input_dataset_1 = nc4.Dataset(script_args.first_half[0], mode="r")
-        input_dataset_1.set_auto_mask(False)
+        input_dataset = nc4.Dataset(script_args.raw_data_file, mode="r")
+        input_dataset.set_auto_mask(False)
     except OSError as exception:
         error_message = (
-            "ERROR: Unable to open first half file "
-            f"{script_args.first_half[0]} for reading\n"
+            "ERROR: Unable to open raw data file "
+            f"{script_args.raw_data_file} for reading\n"
         )
         sys.stderr.write(error_message)
         sys.stderr.write(f"{exception.strerror}\n")
-        exit(1)
+        sys.exit(1)
 
     try:
-        input_dataset_2 = nc4.Dataset(script_args.second_half[0], mode="r")
-        input_dataset_2.set_auto_mask(False)
-    except OSError as exception:
-        error_message = (
-            "ERROR: Unable to open second half file "
-            f"{script_args.second_half[0]} for reading\n"
-        )
-        sys.stderr.write(error_message)
-        sys.stderr.write(f"{exception.strerror}\n")
-        exit(1)
-
-    try:
-        output_dataset = nc4.Dataset(script_args.output_file[0], mode="w")
+        output_dataset = nc4.Dataset(script_args.output_file, mode="w")
         output_dataset.set_auto_mask(False)
     except OSError as exception:
         error_message = (
             "ERROR: Unable to open output file "
-            f"{script_args.output_file[0]} for writing\n"
+            f"{script_args.output_file} for writing\n"
         )
         sys.stderr.write(error_message)
         sys.stderr.write(f"{exception.strerror}\n")
-        exit(1)
+        sys.exit(1)
 
     date = datetime.datetime.fromtimestamp(
-        (input_dataset_1.variables["time"][5] - 613608) * 3600
+        (input_dataset.variables["time"][5] - 613608) * 3600
     )
     year = date.year
     month = date.month
@@ -289,22 +258,19 @@ def main():
     output_dataset.createDimension("lon", 3600)
     output_dataset.createDimension("lat", 1800)
 
-    time_d_size = len(input_dataset_1.variables["time"][:]) + len(
-        input_dataset_2.variables["time"][:]
-    )
+    time_d_size = len(input_dataset.variables["time"][:])
     output_dataset.createDimension("time", time_d_size)
 
-    process_dimensions(output_dataset, input_dataset_1, input_dataset_2)
+    process_dimensions(output_dataset, input_dataset)
 
     for metadata in variable_spec["variables"]:
         process_variable(
-            output_dataset, input_dataset_1, input_dataset_2, metadata
+            output_dataset, input_dataset, metadata
         )
 
     process_emission_heights(output_dataset)
 
-    input_dataset_1.close()
-    input_dataset_2.close()
+    input_dataset.close()
     output_dataset.close()
 
 
